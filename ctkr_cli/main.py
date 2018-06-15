@@ -1,11 +1,28 @@
 #!/usr/bin/env python3
 
+import ccxt
 import click
 import json
 from pprint import pprint
 from ticker import Ticker
 
-# $ctkr [exchange] [base] [quote] 
+
+class Ticker(object):
+    def __init__(self, exchange, base, quote='USD'):
+        self.base = base.upper()
+        self.quote = quote.upper()
+        self.exchange = getattr(ccxt, exchange) 
+        self.ticker = self.exchange().fetch_ticker('{}/{}' \
+                                     .format(base.upper(), 
+                                             quote.upper())) 
+
+    @property
+    def price(self):
+        return self.ticker['last']
+
+    @property
+    def volume(self):
+        return self.ticker['baseVolume']
 
 
 @click.command()
@@ -35,3 +52,5 @@ def get_ticker(exch, base, quote, info):
 
 if __name__ == '__main__':
     get_ticker()
+
+
