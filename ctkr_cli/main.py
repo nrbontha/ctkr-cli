@@ -4,7 +4,6 @@ import ccxt
 import click
 import json
 from pprint import pprint
-from ticker import Ticker
 
 
 class Ticker(object):
