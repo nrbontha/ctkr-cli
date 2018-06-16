@@ -6,13 +6,13 @@
 
 v1.0:
 - [x] get ticker data for any coin/exchange: price, volume, etc
-- [] get exchange info: available exchanges, coins, symbols, etc.
-- [] analysis: arbitrage, historical data, visualizations, etc.
+- [ ] get exchange info: available exchanges, coins, symbols, etc.
+- [ ] analysis: arbitrage, historical data, visualizations, etc.
 
 Future:
-- [] execute trades on any US-based exchange (or non-US depending on exchange regulations)
-- [] async request support 
-- [] buy/sell decision algorithm
-     - [] arbitrage/chaining: BTC -> BTC or BTC -> ETH -> MNR -> BTC across different exchanges
-     - [] moving averages: rules for buying and selling based on long-term trends
-- [] trading bot
+- [ ] execute trades on any US-based exchange (or non-US depending on exchange regulations)
+- [ ] async request support 
+- [ ] buy/sell decision algorithm
+     - arbitrage/chaining: BTC -> BTC or BTC -> ETH -> MNR -> BTC across different exchanges
+     - moving averages: rules for buying and selling based on long-term trends
+- [ ] trading bot
