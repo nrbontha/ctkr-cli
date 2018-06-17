@@ -6,8 +6,21 @@ import json
 from pprint import pprint
 
 
+# TICKER PRICE
+# ctkr [exchange] -b [base] -q [quote] -i [info]
+# ctkr gdax -b btc -q usd
+
+# LIST EXCHANGES
+# ctkr -a
+
+# EXCHANGE INFO
+# ctkr gdax -a
+
+# ctkr exchange -a
+# ctkr price -b btc -q usd -i
+
 class Ticker(object):
-    def __init__(self, exchange, base, quote='USD'):
+    def __init__(self, exchange, base, quote):
         self.base = base.upper()
         self.quote = quote.upper()
         self.exchange = getattr(ccxt, exchange) 
@@ -25,7 +38,7 @@ class Ticker(object):
 
 
 @click.command()
-@click.argument('exch')
+@click.argument('exchange')
 @click.argument('base')
 @click.argument('quote')
 @click.option(
@@ -34,9 +47,9 @@ class Ticker(object):
     help='Ticker information options.', 
     type=click.Choice(['ticker', 'price', 'volume'])
 )
-def get_ticker(exch, base, quote, info):
+def main(exchange, base, quote, info):
     """Get ccxt ticker info."""
-    ticker = Ticker(exch, base, quote)
+    ticker = Ticker(exchange, base, quote)
     output = None
     
     if info == 'price':
@@ -50,6 +63,6 @@ def get_ticker(exch, base, quote, info):
 
 
 if __name__ == '__main__':
-    get_ticker()
+    main()
 
 
