@@ -5,32 +5,82 @@ import click
 import json
 from pprint import pprint
 
+# TODO: CLI COMMANDS
+# get ticker price
+# $ctkr [exchange] -b [base] -q [quote] -i [info]
+# $ctkr gdax -b btc -q usd
 
-# TICKER PRICE
-# ctkr [exchange] -b [base] -q [quote] -i [info]
-# ctkr gdax -b btc -q usd
+# list exchanges
+# $ctkr -a
 
-# LIST EXCHANGES
-# ctkr -a
+# get all exchange info
+# $ctkr gdax -a
 
-# EXCHANGE INFO
-# ctkr gdax -a
+#TODO: pickledb 
+#TODO: async ticker requests 
 
-# ctkr exchange -a
-# ctkr price -b btc -q usd -i
+def get_exchanges():
+    pprint(ccxt.exchanges) 
 
-class Ticker(object):
-    def __init__(self, exchange, base, quote):
-        self.base = base.upper()
-        self.quote = quote.upper()
-        self.exchange = getattr(ccxt, exchange) 
-        self.ticker = self.exchange().fetch_ticker('{}/{}' \
-                                     .format(base.upper(), 
-                                             quote.upper())) 
+class Exchange(object):
+    def __init__(self, exch_name):
+        self.exchange = getattr(ccxt, exch_name)
 
     @property
-    def price(self):
+    def countries(self):
+        return self.exchange.countries
+
+    def get_markets(self):
+        return self.exchange.fetch_markets()
+
+    def get_ticker(self, symbol):
+        return self.exchange.fetch_ticker(symbol)
+
+class Market(Exchange):
+    def __init__(self, exch_name):
+        Exchange.__init__(self, exch_name)
+        self.markets = self.get_markets()
+
+    @property
+    def coins(self):
+        return list({m['base'] for m in self.markets if m['active']}) 
+
+    @property
+    def pairs(self):
+        return [m['symbol'] for m in self.markets if m['active']]
+
+class Ticker(Exchange):
+    def __init__(self, exch_name, symbol):
+        Exchange.__init__(self, exch_name)
+        self.ticker = self.get_ticker(symbol)
+
+    @property
+    def datetime(self):
+        return self.ticker['datetime']
+
+    @property
+    def timestamp(self):
+        return self.ticker['timestamp']
+
+    @property
+    def last_price(self):
         return self.ticker['last']
+
+    @property
+    def ask_price(self):
+        return self.ticker['ask']
+
+    @property
+    def bid_price(self):
+        return self.ticker['bid']
+
+    @property
+    def high_price(self):
+        return self.ticker['high']
+
+    @property
+    def low_price(self):
+        return self.ticker['low']
 
     @property
     def volume(self):
