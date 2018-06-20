@@ -24,7 +24,7 @@ def get_exchanges():
 
 class Exchange(object):
     def __init__(self, exch_name):
-        self.exchange = getattr(ccxt, exch_name)
+        self.exchange = getattr(ccxt, exch_name)()
 
     @property
     def countries(self):
@@ -46,7 +46,7 @@ class Market(Exchange):
         return list({m['base'] for m in self.markets if m['active']}) 
 
     @property
-    def pairs(self):
+    def symbols(self):
         return [m['symbol'] for m in self.markets if m['active']]
 
 class Ticker(Exchange):
