@@ -5,22 +5,9 @@ import click
 import json
 from pprint import pprint
 
-# TODO: CLI COMMANDS
-# get ticker price
-# $ctkr [exchange] -b [base] -q [quote] -i [info]
-# $ctkr gdax -b btc -q usd
-
-# list exchanges
-# $ctkr -a
-
-# get all exchange info
-# $ctkr gdax -a
-
+#TODO: refactor cli args
 #TODO: pickledb 
 #TODO: async ticker requests 
-
-def get_exchanges():
-    pprint(ccxt.exchanges) 
 
 class Exchange(object):
     def __init__(self, exch_name):
@@ -49,9 +36,9 @@ class Market(Exchange):
     def symbols(self):
         return [m['symbol'] for m in self.markets if m['active']]
 
-class Ticker(Exchange):
+class Ticker(Market):
     def __init__(self, exch_name, symbol):
-        Exchange.__init__(self, exch_name)
+        Market.__init__(self, exch_name)
         self.ticker = self.get_ticker(symbol)
 
     @property
@@ -89,21 +76,20 @@ class Ticker(Exchange):
 
 @click.command()
 @click.argument('exchange')
-@click.argument('base')
-@click.argument('quote')
+@click.argument('symbol')
 @click.option(
     '-i', '--info', 
     default='ticker',
     help='Ticker information options.', 
     type=click.Choice(['ticker', 'price', 'volume'])
 )
-def main(exchange, base, quote, info):
+def main(exchange, symbol, info):
     """Get ccxt ticker info."""
-    ticker = Ticker(exchange, base, quote)
+    ticker = Ticker(exchange, symbol)
     output = None
     
     if info == 'price':
-        output = '{} {}'.format(ticker.quote, ticker.price)
+        output = ticker.last_price
     elif info == 'volume':
         output = ticker.volume
     else:
