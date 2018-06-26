@@ -3,21 +3,6 @@
 import ccxt
 import click
 import json
-from pprint import pprint
-
-
-# TICKER PRICE
-# ctkr [exchange] -b [base] -q [quote] -i [info]
-# ctkr gdax -b btc -q usd
-
-# LIST EXCHANGES
-# ctkr -a
-
-# EXCHANGE INFO
-# ctkr gdax -a
-
-# ctkr exchange -a
-# ctkr price -b btc -q usd -i
 
 class Ticker(object):
     def __init__(self, exchange, base, quote):
