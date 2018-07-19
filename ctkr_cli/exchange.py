@@ -1,13 +1,6 @@
 #!/usr/bin/env python3
 
 import ccxt
-import click
-import json
-from pprint import pprint
-
-#TODO: refactor cli args
-#TODO: pickledb 
-#TODO: async ticker requests 
 
 class Exchange(object):
     def __init__(self, exch_name):
@@ -23,7 +16,8 @@ class Exchange(object):
     def get_ticker(self, symbol):
         return self.exchange.fetch_ticker(symbol)
 
-class Market(Exchange):
+
+class Marketplace(Exchange):
     def __init__(self, exch_name):
         Exchange.__init__(self, exch_name)
         self.markets = self.get_markets()
@@ -36,9 +30,10 @@ class Market(Exchange):
     def symbols(self):
         return [m['symbol'] for m in self.markets if m['active']]
 
-class Ticker(Market):
+
+class Ticker(Marketplace):
     def __init__(self, exch_name, symbol):
-        Market.__init__(self, exch_name)
+        Marketplace.__init__(self, exch_name)
         self.ticker = self.get_ticker(symbol)
 
     @property
@@ -70,35 +65,10 @@ class Ticker(Market):
         return self.ticker['low']
 
     @property
-    def volume(self):
+    def base_volume(self):
         return self.ticker['baseVolume']
 
-
-@click.command()
-@click.argument('exchange')
-@click.argument('symbol')
-@click.option(
-    '-i', '--info', 
-    default='ticker',
-    help='Ticker information options.', 
-    type=click.Choice(['ticker', 'price', 'volume'])
-)
-def main(exchange, symbol, info):
-    """Get ccxt ticker info."""
-    ticker = Ticker(exchange, symbol)
-    output = None
-    
-    if info == 'price':
-        output = ticker.last_price
-    elif info == 'volume':
-        output = ticker.volume
-    else:
-        output = json.dumps(ticker.ticker, indent=2)
-
-    click.echo(output)
-
-
-if __name__ == '__main__':
-    main()
-
+    @property
+    def quote_volume(self):
+        return self.ticker['quoteVolume']
 
