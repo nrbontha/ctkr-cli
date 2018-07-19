@@ -8,11 +8,7 @@ from exchange import (
     Marketplace, 
     Ticker
 )
-from ccxt.base.errors import *
-from requests.exceptions import HTTPError
 
-#TODO: explicit exception handling
-#TODO: filter data by country
 
 class MarketData(object):
     def __init__(self, file_path='data/market_data.p', refresh=False):
@@ -86,7 +82,7 @@ class TickerData(MarketData):
         try:
             ticker = Ticker(exchange, symbol)
         except Exception as e:
-            result = 'N/A'
+            result = type(e)
         else:
             if getattr(ticker, data):
                 result = getattr(ticker, data)
