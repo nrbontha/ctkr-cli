@@ -1,53 +1,63 @@
 #!/usr/bin/env python3
 
-import ccxt
 import click
 import json
-
-class Ticker(object):
-    def __init__(self, exchange, base, quote):
-        self.base = base.upper()
-        self.quote = quote.upper()
-        self.exchange = getattr(ccxt, exchange) 
-        self.ticker = self.exchange().fetch_ticker('{}/{}' \
-                                     .format(base.upper(), 
-                                             quote.upper())) 
-
-    @property
-    def price(self):
-        return self.ticker['last']
-
-    @property
-    def volume(self):
-        return self.ticker['baseVolume']
+from exchange import (
+    Exchange, 
+    Marketplace, 
+    Ticker
+)
+from data import (
+    MarketData,
+    TickerData
+)
+from pprint import pprint
 
 
 @click.command()
 @click.argument('exchange')
-@click.argument('base')
-@click.argument('quote')
+@click.option(
+    '-s', '--symbol', 
+    help='Symbol options.'
+)
 @click.option(
     '-i', '--info', 
-    default='ticker',
-    help='Ticker information options.', 
-    type=click.Choice(['ticker', 'price', 'volume'])
+    help='Information options.'
 )
-def main(exchange, base, quote, info):
+def main(exchange, symbol, info):
     """Get ccxt ticker info."""
-    ticker = Ticker(exchange, base, quote)
-    output = None
-    
-    if info == 'price':
-        output = '{} {}'.format(ticker.quote, ticker.price)
-    elif info == 'volume':
-        output = ticker.volume
-    else:
-        output = json.dumps(ticker.ticker, indent=2)
+    result = None
 
-    click.echo(output)
+    if exchange == 'exchange':
+        if symbol:
+            ticker = TickerData()
+            result = ticker(symbol, info) if info else ticker(symbol)
+        else:
+            if info:    
+                if info == 'all':
+                    result = ccxt.exchanges
+                else: 
+                    result = 'error: unknown info flag `%s`' % (str(info))
+            else:
+                result = 'error: no info or symbol flag supplied'
+
+    else:
+        if symbol:
+            data = Ticker(exchange, symbol)
+            result = getattr(data, info) if info else data.ticker
+        else:
+            data = Marketplace(exchange)
+            if info:
+                result = getattr(data, info)
+            else:
+                result = data.markets
+
+    pprint(result)
 
 
 if __name__ == '__main__':
     main()
+
+
 
 
