@@ -36,6 +36,8 @@ def main(exchange, symbol, info):
             if info:    
                 if info == 'all':
                     result = ccxt.exchanges
+                elif info == 'refresh':
+                    return MarketData()
                 else: 
                     result = 'error: unknown info flag `%s`' % (str(info))
             else:
