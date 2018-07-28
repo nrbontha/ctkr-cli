@@ -24,11 +24,11 @@ class Marketplace(Exchange):
 
     @property
     def coins(self):
-        return list({m['base'] for m in self.markets if m['active']}) 
+        return list({mkt['base'] for mkt in self.markets}) 
 
     @property
     def symbols(self):
-        return [m['symbol'] for m in self.markets if m['active']]
+        return [mkt['symbol'] for mkt in self.markets]
 
 
 class Ticker(Marketplace):
