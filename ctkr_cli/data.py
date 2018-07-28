@@ -73,8 +73,8 @@ class TickerData(MarketData):
     def __init__(self):
         MarketData.__init__(self) #self.market_data
 
-    def __call__(self, symbol, data='last_price', n_workers=40):
-        return self._request_tickers(symbol, data, n_workers)
+    def __call__(self, symbol, country=None, data='last_price', n_workers=40):
+        return self._request_tickers(symbol, country, data, n_workers)
 
     def _get_ticker(self, exchange, symbol, data):
 
@@ -89,9 +89,9 @@ class TickerData(MarketData):
         
         return [exchange, result]
 
-    def _request_tickers(self, symbol, data, n_workers):
+    def _request_tickers(self, symbol, country, data, n_workers):
         
-        markets = self._filter_markets(symbol)
+        markets = self._filter_markets(symbol, country)
         return async.run_loop(
             self._get_ticker, 
             n_workers, 
@@ -100,14 +100,15 @@ class TickerData(MarketData):
             data 
         )
 
-    def _filter_markets(self, symbol):
+    def _filter_markets(self, symbol, country):
 
-        markets = filter(
-            lambda exch: self.market_data[exch] 
-            if symbol in self.market_data[exch]['symbols']
-            else None, 
-            self.market_data
-        )
+        if country:
+            markets = {k: v for k, v in self.market_data.items() 
+                if symbol in v['symbols'] 
+                and country in v['countries']}
 
-        return list(markets)
+        else:
+            markets = {k: v for k, v in self.market_data.items() 
+                if symbol in v['symbols']}
 
+        return markets
