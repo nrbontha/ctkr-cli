@@ -21,23 +21,30 @@ from pprint import pprint
     help='Symbol options.'
 )
 @click.option(
+    '-c', '--country', 
+    help='Country options.'
+)
+@click.option(
     '-i', '--info', 
     help='Information options.'
 )
-def main(exchange, symbol, info):
+def main(exchange, symbol, country, info):
     """Get ccxt ticker info."""
     result = None
 
+    if not info:
+        info = 'last_price'
+
     if exchange == 'exchange':
         if symbol:
-            ticker = TickerData()
-            result = ticker(symbol, info) if info else ticker(symbol)
+            tkr = TickerData()
+            result = tkr(symbol, country, info)
         else:
             if info:    
                 if info == 'all':
                     result = ccxt.exchanges
                 elif info == 'refresh':
-                    return MarketData()
+                    return MarketData(refresh=True)
                 else: 
                     result = 'error: unknown info flag `%s`' % (str(info))
             else:
@@ -45,14 +52,14 @@ def main(exchange, symbol, info):
 
     else:
         if symbol:
-            data = Ticker(exchange, symbol)
-            result = getattr(data, info) if info else data.ticker
+            tkr = Ticker(exchange, symbol)
+            result = getattr(tkr, info) if info else tkr.ticker
         else:
-            data = Marketplace(exchange)
+            mkt = Marketplace(exchange)
             if info:
-                result = getattr(data, info)
+                result = getattr(mkt, info)
             else:
-                result = data.markets
+                result = mkt.markets
 
     pprint(result)
 
