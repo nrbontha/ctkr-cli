@@ -27,7 +27,8 @@ class MarketData(object):
                      {
                       'countries': mkt.countries,
                       'coins': mkt.coins,
-                      'symbols': mkt.symbols
+                      'symbols': mkt.symbols,
+                      'error': 'N/A'
                      }]
         except Exception as e:
             result = [exch, 
@@ -35,7 +36,7 @@ class MarketData(object):
                       'countries': 'N/A',
                       'coins': 'N/A',
                       'symbols': 'N/A',
-                      'error': type(e)
+                      'error': e.__class__.__name__
                      }]
 
         return result
@@ -78,11 +79,11 @@ class TickerData(MarketData):
 
     def _get_ticker(self, exchange, symbol, data):
 
-        result = None
+        result = 'N/A'
         try:
             ticker = Ticker(exchange, symbol)
         except Exception as e:
-            result = type(e)
+            result = e.__class__.__name__
         else:
             if getattr(ticker, data):
                 result = getattr(ticker, data)
