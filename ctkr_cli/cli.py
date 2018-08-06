@@ -2,7 +2,7 @@
 
 import click
 import json
-from exchange import (
+from models import (
     Exchange, 
     Marketplace, 
     Ticker

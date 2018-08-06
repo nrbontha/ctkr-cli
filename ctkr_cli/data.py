@@ -3,7 +3,7 @@
 import async
 import pickle
 import ccxt
-from exchange import (
+from models import (
     Exchange, 
     Marketplace, 
     Ticker
