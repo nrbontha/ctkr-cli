@@ -13,43 +13,43 @@ from models import (
 class MarketData(object):
     def __init__(self, file_path='data/market_data.p', refresh=False):
         if refresh:
-            self.market_data = self._refresh_data(file_path)
+            self.market_data = self.refresh_data(file_path)
         else:
             try:
-                self.market_data = self._load_data(file_path)
+                self.market_data = self.load_data(file_path)
             except FileNotFoundError:
-                self.market_data = self._refresh_data(file_path)
+                self.market_data = self.refresh_data(file_path)
 
-    def _get_market(self, exch):
+    def get_market(self, exch):
         try:
             mkt = Marketplace(exch)
             result = [exch, 
-                     {
-                      'countries': mkt.countries,
+                     {'countries': mkt.countries,
                       'coins': mkt.coins,
                       'symbols': mkt.symbols,
-                      'error': 'N/A'
-                     }]
+                      'error': 'N/A'}
+            ]
+
         except Exception as e:
             result = [exch, 
                      {
                       'countries': 'N/A',
                       'coins': 'N/A',
                       'symbols': 'N/A',
-                      'error': e.__class__.__name__
-                     }]
+                      'error': e.__class__.__name__}
+            ]
 
         return result
 
-    def _request_markets(self, n_workers=40):
+    def request_markets(self, n_workers=40):
 
         return async.run_loop(
-            self._get_market, 
+            self.get_market, 
             n_workers, 
             ccxt.exchanges
         )
 
-    def _save_data(self, file_path):
+    def save_data(self, file_path):
 
         with open(file_path, 'wb') as fp:
             pickle.dump(
@@ -58,16 +58,16 @@ class MarketData(object):
                 protocol=pickle.HIGHEST_PROTOCOL
             )
    
-    def _load_data(self, file_path):
+    def load_data(self, file_path):
         
         with open(file_path, 'rb') as fp:
             self.market_data = pickle.load(fp)
         return self.market_data
 
-    def _refresh_data(self, file_path):
+    def refresh_data(self, file_path):
 
-        self.market_data = self._request_markets()
-        self._save_data(file_path)
+        self.market_data = self.request_markets()
+        self.save_data(file_path)
 
 
 class TickerData(MarketData):
@@ -77,7 +77,7 @@ class TickerData(MarketData):
     def __call__(self, symbol, country=None, data='last_price', n_workers=40):
         return self._request_tickers(symbol, country, data, n_workers)
 
-    def _get_ticker(self, exchange, symbol, data):
+    def get_ticker(self, exchange, symbol, data):
 
         result = 'N/A'
         try:
@@ -90,26 +90,28 @@ class TickerData(MarketData):
         
         return [exchange, result]
 
-    def _request_tickers(self, symbol, country, data, n_workers):
+    def request_tickers(self, symbol, country, data, n_workers):
         
-        markets = self._filter_markets(symbol, country)
+        markets = self.filter_markets(symbol, country)
         return async.run_loop(
-            self._get_ticker, 
+            self.get_ticker, 
             n_workers, 
             markets, 
             symbol,
             data 
         )
 
-    def _filter_markets(self, symbol, country):
+    def filter_markets(self, symbol, country):
 
         if country:
             markets = {k: v for k, v in self.market_data.items() 
                 if symbol in v['symbols'] 
-                and country in v['countries']}
+                and country in v['countries']
+            }
 
         else:
             markets = {k: v for k, v in self.market_data.items() 
-                if symbol in v['symbols']}
+                if symbol in v['symbols']
+            }
 
         return markets
