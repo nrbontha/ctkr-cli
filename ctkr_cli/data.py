@@ -71,7 +71,7 @@ class TickerData(MarketData):
         MarketData.__init__(self) #self.market_data
 
     def __call__(self, symbol, country=None, data='last_price', n_workers=40):
-        return self._request_tickers(symbol, country, data, n_workers)
+        return self.request_tickers(symbol, country, data, n_workers)
 
     def get_ticker(self, exchange, symbol, data):
         result = 'N/A'
