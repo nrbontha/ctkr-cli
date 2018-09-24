@@ -25,8 +25,8 @@ async def request_ccxt(worker_func, n_workers, events, *args):
     return result
 
 def run_loop(worker_func, n_workers, events, *args):
-    
     loop = asyncio.get_event_loop()
+
     return loop.run_until_complete(
         request_ccxt(
             worker_func, 

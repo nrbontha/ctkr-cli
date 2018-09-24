@@ -42,7 +42,6 @@ class MarketData(object):
         return result
 
     def request_markets(self, n_workers=40):
-
         return async.run_loop(
             self.get_market, 
             n_workers, 
@@ -50,7 +49,6 @@ class MarketData(object):
         )
 
     def save_data(self, file_path):
-
         with open(file_path, 'wb') as fp:
             pickle.dump(
                 self.market_data, 
@@ -59,13 +57,11 @@ class MarketData(object):
             )
    
     def load_data(self, file_path):
-        
         with open(file_path, 'rb') as fp:
             self.market_data = pickle.load(fp)
         return self.market_data
 
     def refresh_data(self, file_path):
-
         self.market_data = self.request_markets()
         self.save_data(file_path)
 
@@ -78,8 +74,8 @@ class TickerData(MarketData):
         return self._request_tickers(symbol, country, data, n_workers)
 
     def get_ticker(self, exchange, symbol, data):
-
         result = 'N/A'
+        
         try:
             ticker = Ticker(exchange, symbol)
         except Exception as e:
@@ -91,8 +87,8 @@ class TickerData(MarketData):
         return [exchange, result]
 
     def request_tickers(self, symbol, country, data, n_workers):
-        
         markets = self.filter_markets(symbol, country)
+        
         return async.run_loop(
             self.get_ticker, 
             n_workers, 
@@ -102,7 +98,6 @@ class TickerData(MarketData):
         )
 
     def filter_markets(self, symbol, country):
-
         if country:
             markets = {k: v for k, v in self.market_data.items() 
                 if symbol in v['symbols'] 
