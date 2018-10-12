@@ -9,7 +9,6 @@ from models import (
     Ticker
 )
 
-
 class MarketData(object):
     def __init__(self, file_path='data/market_data.p', refresh=False):
         if refresh:
@@ -23,23 +22,22 @@ class MarketData(object):
     def get_market(self, exch):
         try:
             mkt = Marketplace(exch)
-            result = [exch, 
-                     {'countries': mkt.countries,
-                      'coins': mkt.coins,
-                      'symbols': mkt.symbols,
-                      'error': 'N/A'}
-            ]
+            data = {
+                'countries': mkt.countries,
+                'coins': mkt.coins,
+                'symbols': mkt.symbols,
+                'error': 'N/A'
+            }
 
         except Exception as e:
-            result = [exch, 
-                     {
-                      'countries': 'N/A',
-                      'coins': 'N/A',
-                      'symbols': 'N/A',
-                      'error': e.__class__.__name__}
-            ]
+            data = {
+                'countries': 'N/A',
+                'coins': 'N/A',
+                'symbols': 'N/A',
+                'error': e.__class__.__name__
+            }
 
-        return result
+        return [exch, data]
 
     def request_markets(self, n_workers=40):
         return async.run_loop(
@@ -73,39 +71,39 @@ class TickerData(MarketData):
     def __call__(self, symbol, country=None, data='last_price', n_workers=40):
         return self.request_tickers(symbol, country, data, n_workers)
 
-    def get_ticker(self, exchange, symbol, data):
+    def get_ticker(self, exch, symbol, data):
         result = 'N/A'
         
         try:
-            ticker = Ticker(exchange, symbol)
+            ticker = Ticker(exch, symbol)
         except Exception as e:
             result = e.__class__.__name__
         else:
             if getattr(ticker, data):
                 result = getattr(ticker, data)
         
-        return [exchange, result]
+        return [exch, result]
 
-    def request_tickers(self, symbol, country, data, n_workers):
-        markets = self.filter_markets(symbol, country)
-        
+    def request_tickers(self, symbol, country, data, n_workers):        
         return async.run_loop(
             self.get_ticker, 
             n_workers, 
-            markets, 
+            self.filter_markets(symbol, country), 
             symbol,
             data 
         )
 
     def filter_markets(self, symbol, country):
         if country:
-            markets = {k: v for k, v in self.market_data.items() 
+            markets = {
+                k: v for k, v in self.market_data.items() 
                 if symbol in v['symbols'] 
                 and country in v['countries']
             }
 
         else:
-            markets = {k: v for k, v in self.market_data.items() 
+            markets = {
+                k: v for k, v in self.market_data.items() 
                 if symbol in v['symbols']
             }
 

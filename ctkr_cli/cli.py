@@ -32,6 +32,8 @@ def main(exchange, symbol, country, info):
     """Get ccxt ticker info."""
     result = None
 
+    print(country)
+
     if not info:
         info = 'last_price'
 

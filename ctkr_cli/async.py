@@ -4,7 +4,6 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 
 async def request_ccxt(worker_func, n_workers, events, *args):
-
     result = {}
 
     with ThreadPoolExecutor(max_workers=n_workers) as executor:
